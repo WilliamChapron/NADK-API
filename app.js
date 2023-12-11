@@ -38,15 +38,17 @@ app.post('/api/data', async (req, res) => {
     } catch (error) {
     }
 
-    existingData.push(newData);
+    // Fusionner les données existantes avec les nouvelles données
+    const mergedData = existingData.concat(newData);
 
-    await fs.writeFile(dataFilePath, JSON.stringify(existingData, null, 2));
-    
+    await fs.writeFile(dataFilePath, JSON.stringify(mergedData, null, 2));
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de l\'écriture des données' });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
