@@ -49,6 +49,29 @@ app.post('/api/data', async (req, res) => {
   }
 });
 
+app.post('/api/check-and-spawn-npc', (req, res) => {
+  try {
+    const { npcName } = req.body;
+
+    console.log(`Trying to check and spawn NPC: ${npcName}`);
+
+    // Vérifiez si le NPC est déjà spawné en vérifiant la liste des noms
+    if (!spawnedNPCs.includes(npcName)) {
+      spawnedNPCs.push(npcName);
+      console.log(`NPC ${npcName} spawned successfully.`);
+      res.json({ action: 'SPAWN_NPC' });
+    } else {
+      console.log(`NPC ${npcName} already spawned, no action needed.`);
+      res.json({ action: 'NO_ACTION' });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la vérification et du spawn du NPC", error);
+    res.status(500).json({ error: 'Erreur lors de la vérification et du spawn du NPC' });
+  }
+});
+
+
+
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
