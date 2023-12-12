@@ -18,6 +18,8 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
+// Cinematic
+
 app.get('/api/data', async (req, res) => {
   try {
     const data = await fs.readFile(dataFilePath, 'utf-8');
@@ -49,6 +51,11 @@ app.post('/api/data', async (req, res) => {
   }
 });
 
+
+spawnedNPCs = []
+
+// Npcs check Online
+
 app.post('/api/check-and-spawn-npc', (req, res) => {
   try {
     const { npcName } = req.body;
@@ -70,6 +77,30 @@ app.post('/api/check-and-spawn-npc', (req, res) => {
   }
 });
 
+// Pickup check Online
+
+spawnedPickups = []
+
+app.post('/api/check-and-spawn-pickup', (req, res) => {
+  try {
+    const { pickupName } = req.body;
+
+    console.log(`Trying to check and spawn Pickup: ${pickupName}`);
+
+    // Vérifiez si le Pickup est déjà spawné en vérifiant la liste des noms
+    if (!spawnedPickups.includes(pickupName)) {
+      spawnedPickups.push(pickupName);
+      console.log(`Pickup ${pickupName} spawned successfully.`);
+      res.json({ action: 'SPAWN_PICKUP' });
+    } else {
+      console.log(`Pickup ${pickupName} already spawned, no action needed.`);
+      res.json({ action: 'NO_ACTION' });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la vérification et du spawn du Pickup", error);
+    res.status(500).json({ error: 'Erreur lors de la vérification et du spawn du Pickup' });
+  }
+});
 
 
 
