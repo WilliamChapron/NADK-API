@@ -5,7 +5,6 @@ cors = require('cors');
 
 const app = express();
 const port = 4444;
-const dataFilePath = 'data.json';
 
 
 
@@ -20,9 +19,12 @@ app.use(bodyParser.json());
 
 // Cinematic
 
-app.get('/api/data', async (req, res) => {
+app.get('/api/data/:fileName', async (req, res) => {
   try {
-    const data = await fs.readFile(dataFilePath, 'utf-8');
+    const fileName = req.params.fileName;
+    const filePath = `data/${fileName}.json`;
+
+    const data = await fs.readFile(filePath, 'utf-8');
     res.json(JSON.parse(data));
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la lecture des données' });
@@ -31,26 +33,34 @@ app.get('/api/data', async (req, res) => {
 
 app.post('/api/data', async (req, res) => {
   try {
-    const newData = req.body;
+    const { fileName, data } = req.body;
+
+    // Vérifiez si le nom de fichier est fourni
+    if (!fileName) {
+      return res.status(400).json({ error: 'Le nom de fichier est requis.' });
+    }
+
+    const filePath = `data/${fileName}.json`;
+    
     let existingData = [];
 
     try {
-      const data = await fs.readFile(dataFilePath, 'utf-8');
-      existingData = JSON.parse(data);
+      const existingDataFile = await fs.readFile(filePath, 'utf-8');
+      existingData = JSON.parse(existingDataFile);
     } catch (error) {
+      // Le fichier n'existe pas encore
     }
 
     // Fusionner les données existantes avec les nouvelles données
-    const mergedData = existingData.concat(newData);
+    const mergedData = existingData.concat(data);
 
-    await fs.writeFile(dataFilePath, JSON.stringify(mergedData, null, 2));
+    await fs.writeFile(filePath, JSON.stringify(mergedData, null, 2));
 
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de l\'écriture des données' });
   }
 });
-
 
 spawnedNPCs = []
 
