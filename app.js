@@ -6,7 +6,9 @@ cors = require('cors');
 const app = express();
 const port = 4444;
 
-
+let spawnedNPCs = []
+let spawnedPickups = []
+let sessionId = 0;
 
 const corsOptions = {
     origin: 'http://localhost:3000', 
@@ -18,6 +20,31 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // Cinematic
+
+
+
+app.get('/api/:getSessionId', async (req, res) => {
+  if (sessionId == 0) {
+    sessionId = req.params.getSessionId
+    console.log("First Session ID")
+  }
+  else {
+    if (req.params.getSessionId != sessionId) {
+      console.log("Reset Data")
+      spawnedNPCs = []
+      spawnedPickups = []
+    }
+    else {
+      console.log("Same Session ID")
+    }
+  }
+  res.json({ sessionId: sessionId })
+});
+
+app.get('/api/closeSession', async (req, res) => {
+  spawnedNPCs = []
+  spawnedPickups = []
+});
 
 app.get('/api/data/:fileName', async (req, res) => {
   try {
@@ -62,9 +89,7 @@ app.post('/api/data', async (req, res) => {
   }
 });
 
-spawnedNPCs = []
 
-// Npcs check Online
 
 app.post('/api/check-and-spawn-npc', (req, res) => {
   try {
@@ -87,9 +112,7 @@ app.post('/api/check-and-spawn-npc', (req, res) => {
   }
 });
 
-// Pickup check Online
 
-spawnedPickups = []
 
 app.post('/api/check-and-spawn-pickup', (req, res) => {
   try {
